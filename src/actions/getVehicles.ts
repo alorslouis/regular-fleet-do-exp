@@ -1,7 +1,7 @@
 import { ActionError, defineAction } from 'astro:actions';
 import { z } from 'astro:schema';
 
-import { vehicleListParser } from "@utils/parsers/vehicleListParser";
+import { vehicleListParser, type TruncatedSolo } from "@utils/parsers/vehicleListParser";
 import testDataDump from "@assets/testDataDump.json";
 import dummyVehicleActivity from "@assets/dummyVehicleActivity.json"
 
@@ -32,6 +32,18 @@ export const getVehicles = {
 					message: `${error}`
 				})
 			}
+		},
+	}),
+	getTruncatedAll: defineAction({
+		handler(input, context) {
+
+			const remapped = vehicles.map(x => {
+				const truncated: TruncatedSolo = { ...x }
+				return truncated
+			})
+
+			return remapped
+
 		},
 	}),
 	getIndividual: defineAction({
