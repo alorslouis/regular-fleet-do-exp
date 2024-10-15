@@ -6,6 +6,7 @@ import { actions } from "astro:actions";
 import { Image } from "astro:assets";
 import { type VehicleControls } from "@utils/parsers/vehicleListParser";
 import VehicleControlsGrid from "@components/vehicles/VehicleControlsGrid.astro";
+import { transformBarToPsi } from "@utils/barToPsi";
 
 import CarImage from "../../assets/car-topdown.png";
 
@@ -43,10 +44,6 @@ const [data, activityData] = await Promise.all([
 	getVehicle(),
 	getVehicleActivity(),
 ]);
-
-function transformBarToPsi(bar: number | null | undefined) {
-	if (bar) return Math.round(bar * 14.5038);
-}
 
 const vehicleControls: VehicleControls = data;
 ---
