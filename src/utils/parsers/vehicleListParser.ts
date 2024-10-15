@@ -48,5 +48,13 @@ export const vehicleListParser = z.object({
 	}),
 });
 
-export type VehicleSolo = z.infer<typeof p>
+export type VehicleSolo = z.infer<typeof vehicleListing>
 
+const truncatedSolo = vehicleListing.pick({
+	VIN: true,
+	name: true,
+	monitor_id: true,
+	car_image_path: true
+})
+
+export type TruncatedSolo = z.infer<typeof truncatedSolo>
