@@ -11,7 +11,7 @@ if (!parsedTestDataDump.success) {
 	throw new Error("failed to parse vehicle data");
 }
 
-const { vehicle_list } = parsedTestDataDump.data
+const { vehicle_list: vehicles } = parsedTestDataDump.data
 
 export const getVehicles = {
 	getAll: defineAction({
@@ -23,7 +23,7 @@ export const getVehicles = {
 			const { length, offset } = input
 
 			try {
-				return vehicle_list.slice(offset, length)
+				return vehicles.slice(offset, length)
 
 			} catch (error) {
 
@@ -41,7 +41,7 @@ export const getVehicles = {
 		handler(input, context) {
 			const { vin } = input
 
-			const foundVehicle = vehicle_list.find(x => x.VIN === vin)
+			const foundVehicle = vehicles.find(x => x.VIN === vin)
 
 			if (foundVehicle) {
 				return foundVehicle
