@@ -26,3 +26,6 @@ pnpm-debug.log*
 # wrangler files
 .wrangler
 .dev.vars
+src/assets/dummyVehicleActivity.json
+src/assets/testDataDump.json
+src/actions/.getVehicles.ts.swp
