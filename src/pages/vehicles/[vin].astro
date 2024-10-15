@@ -1,0 +1,466 @@
+---
+import Layout from "@layouts/Layout.astro";
+import MapView from "@components/MapView.astro";
+import { actions } from "astro:actions";
+import { Image } from "astro:assets";
+
+import CarImage from "../../assets/car-topdown.png";
+
+const { vin } = Astro.params;
+
+if (!vin) {
+	return Astro.redirect("/");
+}
+
+const getVehicle = async () => {
+	const { data, error } = await Astro.callAction(
+		actions.getVehicles.getIndividual,
+		{ vin },
+	);
+	if (data) {
+		return data;
+	} else {
+		throw new Error("failed to fetch vehicle data");
+	}
+};
+
+const getVehicleActivity = async () => {
+	const { data, error } = await Astro.callAction(
+		actions.getVehicles.getVehicleActivity,
+		{},
+	);
+	if (data) {
+		return data.events;
+	} else {
+		throw new Error("failed to fetch vehicle data");
+	}
+};
+
+const [data, activityData] = await Promise.all([
+	getVehicle(),
+	getVehicleActivity(),
+]);
+
+console.log({ activityData });
+---
+
+<Layout title={vin}>
+	<h1 class="text-xl font-bold my-2">Information</h1>
+
+	<div class="grid grid-cols-1 lg:grid-cols-5 px-2">
+		<div class="flex flex-col col-span-3 gap-4">
+			<ul class="flex flex-col gap-2">
+				<li class="flex gap-2 items-center">
+					<p class="text-lg font-bold uppercase">
+						Name
+					</p>
+					<p class="">
+						{data?.name}
+					</p>
+				</li>
+				<li class="grid grid-cols-2">
+					<p class="text-lg font-bold uppercase">
+						VIN
+					</p>
+					<p class="">
+						{data?.VIN}
+					</p>
+				</li>
+				<li class="grid grid-cols-2">
+					<p class="text-lg font-bold uppercase">
+						Odometer
+					</p>
+					<p class="">
+						{
+							data?.odometer?.toLocaleString()
+						}
+					</p>
+				</li>
+				<li class="grid grid-cols-2">
+					<p class="text-lg font-bold uppercase">
+						Currrent SOC
+					</p>
+					<p class="">
+						{
+							data?.range_decimal
+								? `${Math.round(
+										data?.range_decimal *
+											100,
+									)}%`
+								: null
+						} • {data.range_decimal} mi range
+					</p>
+				</li>
+				<li class="grid grid-cols-2">
+					<p class="text-lg font-bold uppercase">
+						Battery Health
+					</p>
+					<p class="">
+						{data.name}
+					</p>
+				</li>
+			</ul>
+
+			<div class="flex flex-col gap-2">
+				<p>Controls</p>
+				<div class="grid grid-cols-2 gap-2 m-4">
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Flash Lights
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="M12 13c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2m6-5h-1V6c0-2.76-2.24-5-5-5-2.28 0-4.27 1.54-4.84 3.75-.14.54.18 1.08.72 1.22.53.14 1.08-.18 1.22-.72C9.44 3.93 10.63 3 12 3c1.65 0 3 1.35 3 3v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m0 11c0 .55-.45 1-1 1H7c-.55 0-1-.45-1-1v-8c0-.55.45-1 1-1h10c.55 0 1 .45 1 1z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">Lock</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">Honk Horn</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Open Charge Port
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Open Trunk
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Enable Sentry Mode
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Open Frunk
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Enable Sentry
+							Persistence
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Remote Start
+						</p>
+					</div>
+					<div class="flex gap-2 items-center">
+						<button
+							class="p-2 border rounded-lg opacity-30 hover:opacity-100"
+						>
+							<svg
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								xmlns="http://www.w3.org/2000/svg"
+							>
+								<path
+									d="m6.76 4.84-1.8-1.79-1.41 1.41 1.79 1.79zM1 10.5h3v2H1zM11 .55h2V3.5h-2zm8.04 2.495 1.408 1.407-1.79 1.79-1.407-1.408zm-1.8 15.115 1.79 1.8 1.41-1.41-1.8-1.79zM20 10.5h3v2h-3zm-8-5c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6m0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4m-1 4h2v2.95h-2zm-7.45-.96 1.41 1.41 1.79-1.8-1.41-1.41z"
+									fill="currentColor"
+									fill-rule="evenodd"
+									clip-rule="evenodd"
+								></path>
+							</svg>
+						</button>
+						<p class="text-sm">
+							Disable Anti-Theft Mode
+						</p>
+					</div>
+				</div>
+			</div>
+
+			{
+				/*
+				 * Charging block
+				 */
+			}
+			<div class="flex gap-2 items-center">
+				<p class="text-lg font-medium">Charging</p>
+				<a
+					href={`/supercharging/${data?.VIN}`}
+					class="px-4 py-2 rounded-lg border opacity-30 hover:opacity-100"
+				>
+					View Supercharge Costs
+				</a>
+			</div>
+
+			{
+				/*
+				 * Tire pressure block
+				 */
+			}
+			<div class="flex gap-2">
+				<p class="text-lg font-medium">Tire Pressure</p>
+				<div class="flex gap-2">
+					<div class="flex flex-col">
+						<p>
+							{
+								data.tires
+									?.front_left_pressure
+							}
+						</p>
+						<p class="mt-auto">
+							{
+								data.tires
+									?.rear_left_pressure
+							}
+						</p>
+					</div>
+					<Image
+						src={CarImage}
+						alt="car image"
+						height={100}
+						width={50}
+						class="mx-auto"
+					/>
+					<div class="flex flex-col">
+						<p>
+							{
+								data.tires
+									?.front_right_pressure
+							}
+						</p>
+						<p class="mt-auto">
+							{
+								data.tires
+									?.rear_right_pressure
+							}
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="flex gap-2">
+				<p class="text-lg font-medium">Last Seen</p>
+				<div class="flex flex-col gap-2">
+					<p>Driving</p>
+					<p>Coral Gables</p>
+					<p>
+						{data?.lat}, {data?.lon}
+					</p>
+					<p>Driving</p>
+				</div>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<p class="text-lg font-medium">Activity Log</p>
+				<div
+					class="grid grid-cols-2 gap-2 mr-auto text-start px-4"
+				>
+					{
+						activityData.map((x) => {
+							const newDate =
+								new Date(
+									x.vehicle_datetime *
+										1000,
+								);
+							return (
+								<>
+									<p class="">
+										{newDate.toLocaleString()}
+									</p>
+									<div class="flex gap-2 items-center">
+										<svg
+											width="15"
+											height="15"
+											viewBox="0 0 15 15"
+											fill="none"
+											xmlns="http://www.w3.org/2000/svg"
+										>
+											<path
+												d="M7.5 0C7.77614 0 8 0.223858 8 0.5V2.5C8 2.77614 7.77614 3 7.5 3C7.22386 3 7 2.77614 7 2.5V0.5C7 0.223858 7.22386 0 7.5 0ZM2.1967 2.1967C2.39196 2.00144 2.70854 2.00144 2.90381 2.1967L4.31802 3.61091C4.51328 3.80617 4.51328 4.12276 4.31802 4.31802C4.12276 4.51328 3.80617 4.51328 3.61091 4.31802L2.1967 2.90381C2.00144 2.70854 2.00144 2.39196 2.1967 2.1967ZM0.5 7C0.223858 7 0 7.22386 0 7.5C0 7.77614 0.223858 8 0.5 8H2.5C2.77614 8 3 7.77614 3 7.5C3 7.22386 2.77614 7 2.5 7H0.5ZM2.1967 12.8033C2.00144 12.608 2.00144 12.2915 2.1967 12.0962L3.61091 10.682C3.80617 10.4867 4.12276 10.4867 4.31802 10.682C4.51328 10.8772 4.51328 11.1938 4.31802 11.3891L2.90381 12.8033C2.70854 12.9986 2.39196 12.9986 2.1967 12.8033ZM12.5 7C12.2239 7 12 7.22386 12 7.5C12 7.77614 12.2239 8 12.5 8H14.5C14.7761 8 15 7.77614 15 7.5C15 7.22386 14.7761 7 14.5 7H12.5ZM10.682 4.31802C10.4867 4.12276 10.4867 3.80617 10.682 3.61091L12.0962 2.1967C12.2915 2.00144 12.608 2.00144 12.8033 2.1967C12.9986 2.39196 12.9986 2.70854 12.8033 2.90381L11.3891 4.31802C11.1938 4.51328 10.8772 4.51328 10.682 4.31802ZM8 12.5C8 12.2239 7.77614 12 7.5 12C7.22386 12 7 12.2239 7 12.5V14.5C7 14.7761 7.22386 15 7.5 15C7.77614 15 8 14.7761 8 14.5V12.5ZM10.682 10.682C10.8772 10.4867 11.1938 10.4867 11.3891 10.682L12.8033 12.0962C12.9986 12.2915 12.9986 12.608 12.8033 12.8033C12.608 12.9986 12.2915 12.9986 12.0962 12.8033L10.682 11.3891C10.4867 11.1938 10.4867 10.8772 10.682 10.682ZM5.5 7.5C5.5 6.39543 6.39543 5.5 7.5 5.5C8.60457 5.5 9.5 6.39543 9.5 7.5C9.5 8.60457 8.60457 9.5 7.5 9.5C6.39543 9.5 5.5 8.60457 5.5 7.5ZM7.5 4.5C5.84315 4.5 4.5 5.84315 4.5 7.5C4.5 9.15685 5.84315 10.5 7.5 10.5C9.15685 10.5 10.5 9.15685 10.5 7.5C10.5 5.84315 9.15685 4.5 7.5 4.5Z"
+												fill="currentColor"
+												fill-rule="evenodd"
+												clip-rule="evenodd"
+											/>
+										</svg>
+										<p class="">
+											{
+												x.event_name
+											}
+										</p>
+									</div>
+								</>
+							);
+						})
+					}
+				</div>
+			</div>
+			{
+				Object.entries(data).map((kv) => (
+					<p class="break-words">
+						{kv[0]}:
+						{typeof kv[1] === "object"
+							? JSON.stringify(kv[1])
+							: kv[1]}
+					</p>
+				))
+			}
+		</div>
+		<MapView vins={[data.VIN!]} />
+	</div>
+</Layout>
