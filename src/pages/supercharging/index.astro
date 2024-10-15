@@ -1,7 +1,60 @@
 ---
 import Layout from "@layouts/Layout.astro";
+import { actions } from "astro:actions";
+
+const { data, error } = await Astro.callAction(
+	actions.getVehicles.getTruncatedAll,
+	{},
+);
+
+if (error) throw new Error(`failed to fetch truncated: ${error}`);
 ---
 
 <Layout title="supercharging costs">
 	<p>supercharging</p>
+	<div class="flex flex-col">
+		{
+			/*
+		header row
+		*/
+		}
+		<div class="flex w-full px-4 gap-4">
+			<h2 class="text-xl font-medium">Supercharging</h2>
+
+			{
+				/*
+		vehicles dropdown
+		*/
+			}
+
+			<select
+				multiple
+				class="bg-transparent rounded-lg w-fit"
+			>
+				{
+					data.map((x) => {
+						return (
+							<option
+								selected={true}
+								value={
+									x.monitor_id
+								}
+							>
+								{x.name} {x.VIN}
+							</option>
+						);
+					})
+				}</select
+			>
+			{
+				/*
+		options container
+		*/
+			}
+			<div class="flex items-center gap-4 ml-auto">
+				<button> export csv </button>
+				<button> gear </button>
+			</div>
+		</div>
+	</div>
 </Layout>
