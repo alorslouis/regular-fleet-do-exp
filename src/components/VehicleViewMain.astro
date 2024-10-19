@@ -2,6 +2,7 @@
 import { actions } from "astro:actions";
 import CarDummy from "../assets/carDummy.webp";
 import { Image } from "astro:assets";
+import { transformMultiBarToPSI } from "@utils/barToPsi";
 
 const { data, error } = await Astro.callAction(actions.getVehicles.getAll, {});
 
@@ -50,6 +51,32 @@ if (!data || error) throw new Error("ffs");
 			<tbody class="">
 				{
 					data.map((x) => {
+						const tirePressures = x.tires
+							? {
+									fl: x
+										.tires
+										.front_left_pressure,
+									fr: x
+										.tires
+										.front_right_pressure,
+									bl: x
+										.tires
+										.rear_left_pressure,
+									br: x
+										.tires
+										.rear_right_pressure,
+								}
+							: undefined;
+
+						if (!tirePressures) return;
+
+						const tirePressureAvg =
+							transformMultiBarToPSI(
+								Object.values(
+									tirePressures,
+								),
+							);
+
 						return (
 							<tr>
 								{/*
@@ -173,9 +200,7 @@ if (!data || error) throw new Error("ffs");
 										class=""
 									>
 										{
-											x
-												?.tires
-												?.front_left_pressure
+											tirePressureAvg
 										}
 									</a>
 								</td>
