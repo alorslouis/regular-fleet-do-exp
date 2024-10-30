@@ -9,6 +9,7 @@ import VehicleControlsGrid from "@components/vehicles/VehicleControlsGrid.astro"
 import { transformBarToPsi } from "@utils/barToPsi";
 
 import CarImage from "../../assets/car-topdown.png";
+import { kmsToMiles } from "@utils/distanceConvert";
 
 const { vin } = Astro.params;
 
@@ -46,9 +47,11 @@ const [data, activityData] = await Promise.all([
 ]);
 
 const vehicleControls: VehicleControls = data;
+
+const vehicleTitle = data?.name ?? vin;
 ---
 
-<Layout title={vin}>
+<Layout title={vehicleTitle}>
 	<h1 class="text-xl font-bold my-2">Information</h1>
 
 	<div class="grid grid-cols-1 lg:grid-cols-5 px-2">
@@ -92,7 +95,14 @@ const vehicleControls: VehicleControls = data;
 											100,
 									)}%`
 								: null
-						} • {data.range_decimal} mi range
+						} • {
+							Math.round(
+								kmsToMiles(
+									data?.rated_range_km! *
+										data?.range_decimal!,
+								)!,
+							)
+						} mi remaining
 					</p>
 				</li>
 				<li class="grid grid-cols-2">
