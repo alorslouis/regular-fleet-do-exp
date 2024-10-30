@@ -16,13 +16,18 @@ const { vehicle_list: vehicles } = parsedTestDataDump.data
 export const getVehicles = {
 	getAll: defineAction({
 		input: z.object({
+			full: z.boolean(),
 			length: z.number().default(100),
 			offset: z.number().default(0)
 		}),
 		handler(input, context) {
-			const { length, offset } = input
+			const { length, offset, full } = input
 
 			try {
+
+
+				if (full) return vehicles
+
 				return vehicles.slice(offset, length)
 
 			} catch (error) {
