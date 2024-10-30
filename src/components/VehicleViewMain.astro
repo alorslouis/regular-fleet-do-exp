@@ -3,8 +3,11 @@ import { actions } from "astro:actions";
 import CarDummy from "../assets/carDummy.webp";
 import { Image } from "astro:assets";
 import { transformMultiBarToPSI } from "@utils/barToPsi";
+import { kmsToMiles } from "@utils/distanceConvert";
 
-const { data, error } = await Astro.callAction(actions.getVehicles.getAll, {});
+const { data, error } = await Astro.callAction(actions.getVehicles.getAll, {
+	full: false,
+});
 
 if (!data || error) throw new Error("ffs");
 ---
@@ -40,13 +43,13 @@ if (!data || error) throw new Error("ffs");
 	<table class="table-fixed overflow-auto">
 		<thead>
 			<tr>
-				<th> Name </th>
-				<th> SOC </th>
-				<th> Security </th>
-				<th> Alerts </th>
-				<th> Last Seen </th>
-				<th> Location </th>
-				<th> Tires </th>
+				<th>Name</th>
+				<th>SOC</th>
+				<th>Security</th>
+				<th>Alerts</th>
+				<th>LastSeen </th>
+				<th>Location</th>
+				<th>Tires</th>
 			</tr>
 			<tbody class="">
 				{
@@ -129,11 +132,14 @@ if (!data || error) throw new Error("ffs");
 													)
 												: null}
 										</p>
-										<p class="after:content-['%']">
-											{x?.range_decimal
+										<p class="after:content-['mi']">
+											{x?.range_decimal &&
+											x?.rated_range_km
 												? Math.round(
-														x?.range_decimal *
-															100,
+														kmsToMiles(
+															x?.rated_range_km *
+																x?.range_decimal,
+														)!,
 													)
 												: null}
 										</p>
